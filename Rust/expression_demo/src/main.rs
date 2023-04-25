@@ -6,36 +6,11 @@
 
 // the data
 
-#[derive(Clone)]
-struct Rect {
-    width: f32,
-    height: f32,
-}
-
-impl Rect {
-    fn print_rect(&self) {
-        println!("Rect {{ width: {}, height: {} }}", self.width, self.height);
-    }
-    fn sum_rect(&self) {
-        println!("Sum = {}", self.width + self.height);
-    }
-}
-
-#[derive(Clone)]
-struct Circle {
-    radius: f32,
-}
-
-impl Circle {
-    fn print_circle(&self) {
-        println!("Circle {{ radius: {} }}", self.radius);
-    }
-    fn sum_circle(&self) {
-        println!("Sum = {}", self.radius);
-    }
-}
-
 // OO style
+
+mod extern_datatypes;
+
+use crate::extern_datatypes::*;
 
 trait ShapeTrait {
     fn trait_print(&self);
@@ -87,10 +62,99 @@ fn sum_shape(shape: &Shape) {
     }
 }
 
+// enum SumTypes<L, R> {
+//     Left(L),
+//     Right(R),
+// }
+
 // Adding new shape
 // Adding new operation for all shapes
 
+trait LitSym<T> {
+    fn lit(n: i32) -> T;
+}
+
+trait NegSym<T> {
+    fn neg(n: T) -> T;
+}
+
+trait AddSym<T> {
+    fn add(e1: T, e2: T) -> T;
+}
+
+fn tf1<T>() -> T
+where
+    T: LitSym<T> + NegSym<T> + AddSym<T>,
+{
+    T::add(T::lit(10), T::neg(T::lit(2)))
+}
+
+impl LitSym<i32> for i32 {
+    fn lit(n: i32) -> i32 {
+        n
+    }
+}
+
+impl NegSym<i32> for i32 {
+    fn neg(n: i32) -> i32 {
+        -n
+    }
+}
+
+impl AddSym<i32> for i32 {
+    fn add(e1: i32, e2: i32) -> i32 {
+        e1 + e2
+    }
+}
+
+// adding new language construct mul
+
+trait MulSym<T> {
+    fn mul(e1: T, e2: T) -> T;
+}
+
+impl MulSym<i32> for i32 {
+    fn mul(e1: i32, e2: i32) -> i32 {
+        e1 * e2
+    }
+}
+
+fn tfm1<T>() -> T
+where
+    T: LitSym<T> + NegSym<T> + MulSym<T>,
+{
+    T::mul(T::neg(T::lit(2)), T::neg(T::lit(3)))
+}
+
+// adding a new interpretation String
+
+impl LitSym<String> for String {
+    fn lit(n: i32) -> String {
+        n.to_string()
+    }
+}
+
+impl NegSym<String> for String {
+    fn neg(n: String) -> String {
+        format!("-{}", n)
+    }
+}
+
+impl AddSym<String> for String {
+    fn add(e1: String, e2: String) -> String {
+        format!("{} + {}", e1, e2)
+    }
+}
+
+impl MulSym<String> for String {
+    fn mul(e1: String, e2: String) -> String {
+        format!("{} * {}", e1, e2)
+    }
+}
+
 fn main() {
+    println!("{} = {}", tf1::<String>(), tf1::<i32>());
+    println!("{} = {}", tfm1::<String>(), tfm1::<i32>());
     let the_rect = Rect {
         width: 3.123,
         height: 1.23,
@@ -113,3 +177,17 @@ fn main() {
     dyncircle.trait_print();
     dyncircle.trait_sum();
 }
+
+// lit: Int
+// add: Int -> Int -> Int
+// mul: Int -> Int -> Int
+// neg: Int -> Int
+
+// Expr:
+// eval: Expr -> Int
+// print: Expr -> String
+
+// lit: Int -> Expr
+// add: Expr -> Expr -> Expr
+// mul: Expr -> Expr -> Expr
+// neg: Expr -> Expr
